@@ -1,0 +1,40 @@
+body {
+    background-image: url('images/bg.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    height: 100%;
+}
+
+.demo-card-square.mdl-card {
+    width: 320px;
+    height: 320px;
+}
+
+.demo-card-square > .mdl-card__title {
+    color: #fff;
+}
+
+.full {
+    height: 98.3%;
+
+}
+
+.mid {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -160px 0 0 -160px;
+}
+
+#sendicon {
+    position: absolute;
+    top: 50%;
+    height: 24px;
+    margin-top: -13px; /* account for padding and border if not using box-sizing: border-box; */
+    left: 5px;
+}
+
+#cardbot {
+    position: relative;
+}
