@@ -6,18 +6,19 @@ body {
     height: 100%;
 }
 
+#failed {
+    display: block;
+    margin: auto;
+}
+
+#backend-logo {
+    display: block;
+    margin: auto;
+    width: 40%;
+}
 .demo-card-square.mdl-card {
     width: 320px;
     height: 320px;
-}
-
-.demo-card-square > .mdl-card__title {
-    color: #fff;
-}
-
-.full {
-    height: 98.3%;
-
 }
 
 .mid {
@@ -25,6 +26,32 @@ body {
     left: 50%;
     top: 50%;
     margin: -160px 0 0 -160px;
+}
+
+.carderr {
+    width: 320px;
+    height: 400px !important;
+}
+
+.miderr {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -200px 0 0 -160px !important;
+}
+
+.mdl-card--expand {
+    margin-bottom: -10px;
+}
+
+.demo-card-square > .mdl-card__title {
+    color: #fff;
+
+}
+
+.full {
+    height: 98.3%;
+
 }
 
 #sendicon {

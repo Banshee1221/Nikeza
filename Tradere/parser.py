@@ -1,5 +1,6 @@
 settings_dict = {
-    "general": {}
+    "general": {},
+    "backend": {}
 }
 
 
@@ -11,6 +12,9 @@ with open("vars.conf", "r") as infile:
     current_dict = ""
     for lines in infile:
         lines = lines.strip()
+        if lines == "":
+            continue
+        print(lines)
         if lines[0] == "[":
             current_dict = lines[1:-1].lower()
             if current_dict not in settings_dict:
