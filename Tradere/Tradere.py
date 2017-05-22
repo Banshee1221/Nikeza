@@ -1,11 +1,15 @@
 from os import urandom
 from parser import get_settings
 
+import operations
 from flask import Flask, request, render_template, session, g, redirect, url_for
+from flask_cache import Cache
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+app.config['CACHE_TYPE'] = 'simple'
 app.secret_key = urandom(24)
+app.cache = Cache(app)
 
 
 @app.before_request
@@ -20,6 +24,8 @@ def before_request():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
+    if g.user:
+        return redirect(url_for('queue'))
     if request.method == 'POST':
         session.pop('user', None)
         print(request.form['username'], request.form['password'])
@@ -33,7 +39,6 @@ def index():
     return render_template('index.html',
                            title=get_settings()["general"]["sysname"],
                            plugin_image="static/images/{0}".format(get_settings()["backend"]["platform_image"]),
-                           username="Eugene",
                            error=g.error)
 
 
@@ -46,19 +51,18 @@ def getsession():
 
 @app.route('/queue')
 def queue():
-    print(g.error, g.user)
     if g.user:
-        return render_template("queue.html")
-    return redirect(url_for('index'))
+        operation = operations.Ops(g.user, g.password)
+        print(operation.get_queue())
+        return render_template("queue.html",
+                               title=get_settings()["general"]["sysname"])
+    return redirect(url_for("index"))
 
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return render_template('index.html',
-                           title=get_settings()["general"]["sysname"],
-                           plugin_image="static/images/{0}".format(get_settings()["backend"]["platform_image"]),
-                           username="Eugene")
+    return redirect(url_for('index'))
 
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.run(debug=True)

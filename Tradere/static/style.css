@@ -28,20 +28,26 @@ body {
     margin: -160px 0 0 -160px;
 }
 
+#logcard {
+    width: 300px;
+    display: block;
+    margin: auto;
+}
+
 .carderr {
-    width: 320px;
-    height: 400px !important;
+    height: 360px !important;
 }
-
-.miderr {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin: -200px 0 0 -160px !important;
-}
-
 .mdl-card--expand {
     margin-bottom: -10px;
+}
+
+.horalign {
+    margin: 0 auto;
+    display: block;
+}
+
+.queuebtn {
+    width: 150px;
 }
 
 .demo-card-square > .mdl-card__title {

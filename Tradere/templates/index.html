@@ -1,36 +1,36 @@
 {% extends "main.html" %}
 {% block page %}Login{% endblock %}
 {% block content %}
-    <div class="mdl-grid" style="">
-        <div class="mdl-cell--12-col full">
-            <div class="mdl-cell--middle mid {% if error %} miderr {% endif %}">
-                <div class="demo-card-square mdl-card {% if error %} carderr{% endif %} mdl-shadow--2dp">
-                    {% if error %}
-                        <div class="mdl-card__title mdl-card--expand">
-                            <h4 id="failed" style="color: red;">Login failed</h4>
-                        </div>
-                    {% endif %}
-                    <div class="mdl-card__supporting-text">
-                        <img id="backend-logo" src="{{ plugin_image }}"/>
-                        <form action="#" method="POST" id="subform">
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" type="text" id="sample3" name="username">
-                                <label class="mdl-textfield__label" for="sample3">Username</label>
-                            </div>
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" type="text" id="sample4" name="password">
-                                <label class="mdl-textfield__label" for="sample4">Password</label>
+    <body class="valign-wrapper">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card" id="logcard">
+                    <div class="card-content {% if error %}carderr{% endif %}"
+                         style="height: 300px;margin-bottom: 20px;">
+                        {% if error %}<h5 class="center-align">Error Login Failed</h5>{% endif %}
+                        <img src="{{ plugin_image }}" style="width: 128px;display:block;margin:auto;"/>
+                        <form class="col s12" id="subform" method="POST">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input id="icon_prefix" type="text" class="validate" name="username">
+                                    <label for="icon_prefix">Username</label>
+                                </div>
+                                <div class="input-field col s12">
+                                    <input id="icon_telephone" type="password" class="validate" name="password">
+                                    <label for="icon_telephone">Password</label>
+                                </div>
                             </div>
                         </form>
                     </div>
-                    <div id="cardbot" class="mdl-card__actions">
-                        <button style="font-size: 16px; width: 100px;"
-                                class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" type="submit"
-                                form="subform" value="Submit">Go<i id="sendicon" class="material-icons">send</i>
+                    <div class="card-action">
+                        <button class="waves-effect waves-light btn" type="submit" form="subform" value="Submit"><i
+                                class="material-icons left">send</i>Log In
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    </body>
 {% endblock %}
