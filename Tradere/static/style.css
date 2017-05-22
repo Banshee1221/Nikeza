@@ -50,9 +50,8 @@ body {
     width: 150px;
 }
 
-.demo-card-square > .mdl-card__title {
-    color: #fff;
-
+.margin-adj {
+    margin-top: 50px;
 }
 
 .full {

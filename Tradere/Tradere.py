@@ -53,10 +53,18 @@ def getsession():
 def queue():
     if g.user:
         operation = operations.Ops(g.user, g.password)
-        print(operation.get_queue())
         return render_template("queue.html",
                                title=get_settings()["general"]["sysname"])
     return redirect(url_for("index"))
+
+
+@app.route('/new')
+def new():
+    if g.user:
+        return render_template("new.html",
+                               title=get_settings()["general"]["sysname"])
+    return redirect(url_for("index"))
+
 
 
 @app.route('/logout')
