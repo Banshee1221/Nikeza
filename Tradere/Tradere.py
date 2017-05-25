@@ -51,6 +51,7 @@ def getsession():
 def queue():
     if g.user:
         operation = operations.Ops(g.user, g.password)
+        operation.get_queue()
         return render_template("queue.html",
                                title=get_settings()["general"]["sysname"])
     return redirect(url_for("index"))
