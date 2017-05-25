@@ -20,4 +20,4 @@ class Ops:
 
 if __name__ == "__main__":
     ops = Ops("one", "two")
-    print(ops.get_queue())
+    # print(ops.get_queue())
