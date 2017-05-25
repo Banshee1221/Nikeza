@@ -18,7 +18,7 @@ class Plugin:
 
     def queue_list(self):
         command = 'curl -si -H"X-Auth-Token:' + str(
-            self.token) + '" -H "Content-type: application/json" http://localhost:', magnum_port, '/v1/clusters'
+            self.token) + '" -H "Content-type: application/json" http://localhost:', str(magnum_port), '/v1/clusters'
         print(command)
         process = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
         print(process.stdout)
