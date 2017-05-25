@@ -3,13 +3,11 @@ from parser import get_settings
 
 import operations
 from flask import Flask, request, render_template, session, g, redirect, url_for
-from flask_cache import Cache
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['CACHE_TYPE'] = 'simple'
 app.secret_key = urandom(24)
-app.cache = Cache(app)
 
 
 @app.before_request
@@ -72,5 +70,5 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
-app.config.from_envvar('FLASKR_SETTINGS', silent=True)
-app.run(debug=True)
+
+app.run(debug=True, host="0.0.0.0", port=5432)
