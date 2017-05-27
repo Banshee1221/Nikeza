@@ -1,11 +1,3 @@
-function update_values() {
-    $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-    $.getJSON($SCRIPT_ROOT + "/updateQueue",
-        function (data) {
-            alert(data);
-        });
-}
-
 function checkAll(ele) {
     var checkboxes = document.getElementsByClassName('groupcheckbox');
     if (ele.checked) {

@@ -2,6 +2,15 @@
 {% block page %}Queue{% endblock %}
 {% block content %}
     <body>
+    <script type="text/javascript">
+        function update_values() {
+            $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
+            $.getJSON($SCRIPT_ROOT + "/_updateQueue",
+                function (data) {
+                    alert(data);
+                });
+        }
+    </script>
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12 margin-adj">
