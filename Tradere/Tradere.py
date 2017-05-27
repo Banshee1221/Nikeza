@@ -60,6 +60,15 @@ def queue():
                                queue_dict=operation.get_queue())
     return redirect(url_for("index"))
 
+@app.route('/_updateQueue', methods=['GET'])
+def updateQueue():
+    if g.user:
+        try:
+            operation = operations.Ops(g.user, g.password)
+        except Exception:
+            return -1
+    return operation.get_queue()
+
 
 @app.route('/new')
 def new():
