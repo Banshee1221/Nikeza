@@ -22,11 +22,12 @@ def before_request():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    if g.user:
+    if request.args.get('error'):
+        g.error = True
+    if g.user and not g.error:
         return redirect(url_for('queue'))
     if request.method == 'POST':
         session.pop('user', None)
-        print(request.form['username'], request.form['password'])
         if request.form['username'] != '' or request.form['password'] != '':
             session['user'] = request.form['username']
             session['password'] = request.form['password']
@@ -50,10 +51,13 @@ def getsession():
 @app.route('/queue')
 def queue():
     if g.user:
-        operation = operations.Ops(g.user, g.password)
-        operation.get_queue()
+        try:
+            operation = operations.Ops(g.user, g.password)
+        except Exception:
+            return redirect(url_for("index", error=True))
         return render_template("queue.html",
-                               title=get_settings()["general"]["sysname"])
+                               title=get_settings()["general"]["sysname"],
+                               queue_dict=operation.get_queue())
     return redirect(url_for("index"))
 
 

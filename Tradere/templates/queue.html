@@ -9,8 +9,9 @@
                     <div class="card-content">
                         <span class="card-title center-align">Current Queue</span>
                         <hr/>
-                        <p>I am a very simple card. I am good at containing small bits of information.
-                            I am convenient because I require little markup to use effectively.</p>
+                        {% for key, value in queue_dict.items() %}
+                            <li>{{ value }}</li>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

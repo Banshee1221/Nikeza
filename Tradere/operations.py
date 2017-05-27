@@ -15,7 +15,7 @@ class Ops:
         Receives the list of running objects as dict
         :return:
         """
-        return self.plug.queue_list()
+        return self.plug.magnum_queue_list()
 
 
 if __name__ == "__main__":
