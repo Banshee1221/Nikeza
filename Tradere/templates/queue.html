@@ -9,9 +9,42 @@
                     <div class="card-content">
                         <span class="card-title center-align">Current Queue</span>
                         <hr/>
-                        {% for key, value in queue_dict.items() %}
-                            <li>{{ value }}</li>
-                        {% endfor %}
+                        <form>
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>
+                                        <input name="all" type="checkbox" id="allbox" onchange="checkAll(this)"/>
+                                        <label for="allbox">&nbsp;</label>
+                                    </th>
+                                    <th>ID</th>
+                                    <th>NAME</th>
+                                    <th>MASTER COUNT</th>
+                                    <th>NODE COUNT</th>
+                                    <th>STATUS</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for key, value in queue_dict.items() %}
+                                    <tr>
+                                        {% for clusters in value %}
+                                            <td>
+                                                <input class="groupcheckbox" name="{{ clusters['uuid'] }}"
+                                                       type="checkbox" id="{{ clusters['uuid'] }}"/>
+                                                <label for="{{ clusters['uuid'] }}">&nbsp;</label>
+                                            </td>
+                                            <td>{{ clusters['uuid'] }}</td>
+                                            <td>{{ clusters['name'] }}</td>
+                                            <td>{{ clusters['master_count'] }}</td>
+                                            <td>{{ clusters['node_count'] }}</td>
+                                            <td>{{ clusters['status'] }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
             </div>
