@@ -2,15 +2,6 @@
 {% block page %}Queue{% endblock %}
 {% block content %}
     <body>
-    <script type="text/javascript">
-        function update_values() {
-            $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-            $.getJSON($SCRIPT_ROOT + "/_updateQueue",
-                function (data) {
-                    alert(data);
-                });
-        }
-    </script>
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12 margin-adj">
@@ -34,22 +25,22 @@
                                 </tr>
                                 </thead>
 
-                                <tbody>
+                                <tbody id="tableContent">
                                 {% for key, value in queue_dict.items() %}
-                                    <tr>
-                                        {% for clusters in value %}
+                                    {% for clusters in value %}
+                                        <tr id="{{ clusters['uuid'] }}" class="clustertable">
                                             <td>
-                                                <input class="groupcheckbox" name="{{ clusters['uuid'] }}"
-                                                       type="checkbox" id="{{ clusters['uuid'] }}"/>
-                                                <label for="{{ clusters['uuid'] }}">&nbsp;</label>
+                                                <input class="groupcheckbox" value="{{ clusters['uuid'] }}"
+                                                       type="checkbox" id="{{ clusters['uuid'] }}_id"/>
+                                                <label for="{{ clusters['uuid'] }}_id">&nbsp;</label>
                                             </td>
-                                            <td>{{ clusters['uuid'] }}</td>
-                                            <td>{{ clusters['name'] }}</td>
-                                            <td>{{ clusters['master_count'] }}</td>
-                                            <td>{{ clusters['node_count'] }}</td>
-                                            <td>{{ clusters['status'] }}</td>
-                                        {% endfor %}
-                                    </tr>
+                                            <td id="{{ clusters['uuid'] }}_id">{{ clusters['uuid'] }}</td>
+                                            <td id="{{ clusters['uuid'] }}_nm">{{ clusters['name'] }}</td>
+                                            <td id="{{ clusters['uuid'] }}_mc">{{ clusters['master_count'] }}</td>
+                                            <td id="{{ clusters['uuid'] }}_nc">{{ clusters['node_count'] }}</td>
+                                            <td id="{{ clusters['uuid'] }}_st">{{ clusters['status'] }}</td>
+                                        </tr>
+                                    {% endfor %}
                                 {% endfor %}
                                 </tbody>
                             </table>
@@ -61,9 +52,53 @@
                 <a class="horalign waves-effect waves-light btn queuebtn" href="/new">Add</a>
             </div>
             <div class="col s6">
-                <a class="horalign waves-effect waves-light btn queuebtn" id="stopcluster">Stop</a>
+                <a class="horalign waves-effect waves-light btn queuebtn" onclick="stopCluster()">Stop</a>
             </div>
         </div>
     </div>
+    <script>
+        window.onload = function() {
+            function update_values() {
+                $.getJSON("/_updateQueue", function (data) {
+                    if ($(".clustertable").length){
+                        console.log("Starting checks");
+                        $(".clustertable").each(function () {
+                            var currItem = this;
+                            console.log("FROM clustertable:", currItem.id);
+                            var del = 0;
+                            $.each(data.j.clusters, function (k, v) {
+                                console.log("FROM json:", v.uuid.toString());
+                                if (v.uuid.toString().toLowerCase() === currItem.id.toLowerCase()){
+                                    console.log("FOUND MATCH!\npage: "+currItem.id+"\njson: "+v.uuid);
+                                    $("#" + v.uuid + "_id").html(v.uuid);
+                                    $("#" + v.uuid + "_nm").html(v.name);
+                                    $("#" + v.uuid + "_mc").html(v.master_count);
+                                    $("#" + v.uuid + "_nc").html(v.node_count);
+                                    $("#" + v.uuid + "_st").html(v.status);
+                                    console.log(v.status);
+                                    del = 0;
+                                    return false;
+                                }
+                                console.log("NO MATCH!");
+                                del = 1;
+                            });
+                            if (del == 1){
+                                console.log("No match found");
+                                currItem.remove();
+                            }
+                        })
+                    }
+                    else {
+                        $("#tableContent").append(
+                            '<tr><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + ' /><label for=' + v.uuid + '>&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
+                        );
+                    }
+                });
+            }
+            $(document).ready(setInterval(function () {
+                update_values()
+            }, 10000));
+        }
+    </script>
     </body>
 {% endblock %}

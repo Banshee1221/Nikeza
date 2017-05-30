@@ -8,7 +8,7 @@ function checkAll(ele) {
         }
     } else {
         for (var i = 0; i < checkboxes.length; i++) {
-            console.log(i)
+            console.log(i);
             if (checkboxes[i].type == 'checkbox') {
                 checkboxes[i].checked = false;
             }
@@ -16,10 +16,11 @@ function checkAll(ele) {
     }
 }
 
-document.getElementById("stopcluster").onclick = function () {
-    document.getElementById("clusterForm").submit();
+function stopCluster() {
+    if (confirm("Are you sure you want to stop these jobs?")) {
+        $('input:checkbox.groupcheckbox').each(function () {
+            var sThisVal = (this.checked ? $(this).val() : "");
+            console.log(sThisVal);
+        });
+    }
 }
-
-setInterval(function() {
-  update_values()
-}, 5000);

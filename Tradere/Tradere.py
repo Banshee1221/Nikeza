@@ -2,7 +2,7 @@ from os import urandom
 from parser import get_settings
 
 import operations
-from flask import Flask, request, render_template, session, g, redirect, url_for
+from flask import Flask, request, render_template, session, g, redirect, url_for, jsonify
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -58,7 +58,8 @@ def queue():
         return render_template("queue.html",
                                title=get_settings()["general"]["sysname"],
                                queue_dict=operation.get_queue())
-    return redirect(url_for("index"))
+    return redirect(url_for("index", error=True))
+
 
 @app.route('/_updateQueue', methods=['GET'])
 def updateQueue():
@@ -66,8 +67,9 @@ def updateQueue():
         try:
             operation = operations.Ops(g.user, g.password)
         except Exception:
-            return -1
-    return operation.get_queue()
+            return redirect(url_for("index", error=True))
+        return jsonify(j=operation.get_queue())
+    return redirect(url_for("index", error=True))
 
 
 @app.route('/new')
