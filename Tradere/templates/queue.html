@@ -61,13 +61,23 @@
             function update_values() {
                 $.getJSON("/_updateQueue", function (data) {
                     if ($(".clustertable").length){
+                        console.log("====================================");
                         console.log("Starting checks");
-                        $(".clustertable").each(function () {
+                        var origList = [];
+                        var newList = [];
+                        $(".clustertable").each(function (htmlItem) {
+                            console.log("++++++++++++++++++++++");
                             var currItem = this;
+                            origList.push(currItem.id);
                             console.log("FROM clustertable:", currItem.id);
-                            var del = 0;
+                            var del = 1;
+                            console.log(data.j);
                             $.each(data.j.clusters, function (k, v) {
+                                console.log("-------------------")
                                 console.log("FROM json:", v.uuid.toString());
+                                if (newList.indexOf(v.uuid.toString()) < 0) {
+                                    newList.push(v.uuid.toString());
+                                }
                                 if (v.uuid.toString().toLowerCase() === currItem.id.toLowerCase()){
                                     console.log("FOUND MATCH!\npage: "+currItem.id+"\njson: "+v.uuid);
                                     $("#" + v.uuid + "_id").html(v.uuid);
@@ -77,20 +87,36 @@
                                     $("#" + v.uuid + "_st").html(v.status);
                                     console.log(v.status);
                                     del = 0;
-                                    return false;
+                                    return true;
                                 }
                                 console.log("NO MATCH!");
-                                del = 1;
                             });
                             if (del == 1){
                                 console.log("No match found");
                                 currItem.remove();
                             }
-                        })
+                        });
+                        console.log("orig: "+origList);
+                        console.log("new: "+newList);
+                        console.log("Difflist:");
+                        var diffList = arr_diff(origList, newList);
+                        console.log(diffList);
+                        $.each(data.j.clusters, function (k, v) {
+                            console.log("! "+v);
+                            $.each(diffList, function (index, val) {
+                                console.log(val+" == "+v.uuid);
+                                if (v.uuid.toString() === val.toString()) {
+                                    $("#tableContent").append(
+                                        '<tr id='+v.uuid+' class="clustertable"><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + '_id /><label for=' + v.uuid + '_id >&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
+                                    );
+                                }
+                            });
+                        });
+                        //origList =
                     }
                     else {
                         $("#tableContent").append(
-                            '<tr><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + ' /><label for=' + v.uuid + '>&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
+                            '<tr id='+v.uuid+' class="clustertable"><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + '_id /><label for=' + v.uuid + '_id >&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
                         );
                     }
                 });
