@@ -1,6 +1,6 @@
 from os import urandom
 from parser import get_settings
-
+import json
 import operations
 from flask import Flask, request, render_template, session, g, redirect, url_for, jsonify
 
@@ -48,8 +48,10 @@ def getsession():
     return "Not logged in"
 
 
-@app.route('/queue')
+@app.route('/queue', methods=['GET', 'POST'])
 def queue():
+    if request.method == 'POST':
+        print((request.get_json()))
     if g.user:
         try:
             operation = operations.Ops(g.user, g.password)

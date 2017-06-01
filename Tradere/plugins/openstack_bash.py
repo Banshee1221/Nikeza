@@ -30,6 +30,9 @@ class Plugin:
         process = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
         return get_json(process.stdout.decode('utf-8'), 11)
 
+    def stop_cluster(self, clusterId):
+        pass
+
     def swift(self):
         pass
 

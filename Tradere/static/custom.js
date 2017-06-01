@@ -18,9 +18,20 @@ function checkAll(ele) {
 
 function stopCluster() {
     if (confirm("Are you sure you want to stop these jobs?")) {
-        $('input:checkbox.groupcheckbox').each(function () {
-            var sThisVal = (this.checked ? $(this).val() : "");
-            console.log(sThisVal);
+        var selected = [];
+        $('#clusterForm input:checked').each(function () {
+            selected.push($(this).attr('value'));
+            console.log(selected);
+        });
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: "/queue",
+            data: JSON.stringify(selected),
+            success: function (data) {
+                console.log(data);
+            },
+            dataType: "json"
         });
     }
 }
@@ -42,3 +53,4 @@ function arr_diff(a1, a2) {
     }
     return diff;
 }
+

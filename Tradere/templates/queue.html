@@ -31,8 +31,8 @@
                                         <tr id="{{ clusters['uuid'] }}" class="clustertable">
                                             <td>
                                                 <input class="groupcheckbox" value="{{ clusters['uuid'] }}"
-                                                       type="checkbox" id="{{ clusters['uuid'] }}_id"/>
-                                                <label for="{{ clusters['uuid'] }}_id">&nbsp;</label>
+                                                       type="checkbox" id="{{ clusters['uuid'] }}_id" name="check" />
+                                                <label for="{{ clusters['uuid'] }}_id" >&nbsp;</label>
                                             </td>
                                             <td id="{{ clusters['uuid'] }}_id">{{ clusters['uuid'] }}</td>
                                             <td id="{{ clusters['uuid'] }}_nm">{{ clusters['name'] }}</td>
@@ -57,15 +57,15 @@
         </div>
     </div>
     <script>
-        window.onload = function() {
+        window.onload = function () {
             function update_values() {
                 $.getJSON("/_updateQueue", function (data) {
-                    if ($(".clustertable").length){
+                    if ($(".clustertable").length) {
                         console.log("====================================");
                         console.log("Starting checks");
                         var origList = [];
                         var newList = [];
-                        $(".clustertable").each(function (htmlItem) {
+                        $(".clustertable").each(function () {
                             console.log("++++++++++++++++++++++");
                             var currItem = this;
                             origList.push(currItem.id);
@@ -73,13 +73,13 @@
                             var del = 1;
                             console.log(data.j);
                             $.each(data.j.clusters, function (k, v) {
-                                console.log("-------------------")
+                                console.log("-------------------");
                                 console.log("FROM json:", v.uuid.toString());
                                 if (newList.indexOf(v.uuid.toString()) < 0) {
                                     newList.push(v.uuid.toString());
                                 }
-                                if (v.uuid.toString().toLowerCase() === currItem.id.toLowerCase()){
-                                    console.log("FOUND MATCH!\npage: "+currItem.id+"\njson: "+v.uuid);
+                                if (v.uuid.toString().toLowerCase() === currItem.id.toLowerCase()) {
+                                    console.log("FOUND MATCH!\npage: " + currItem.id + "\njson: " + v.uuid);
                                     $("#" + v.uuid + "_id").html(v.uuid);
                                     $("#" + v.uuid + "_nm").html(v.name);
                                     $("#" + v.uuid + "_mc").html(v.master_count);
@@ -91,23 +91,23 @@
                                 }
                                 console.log("NO MATCH!");
                             });
-                            if (del == 1){
+                            if (del == 1) {
                                 console.log("No match found");
                                 currItem.remove();
                             }
                         });
-                        console.log("orig: "+origList);
-                        console.log("new: "+newList);
+                        console.log("orig: " + origList);
+                        console.log("new: " + newList);
                         console.log("Difflist:");
                         var diffList = arr_diff(origList, newList);
                         console.log(diffList);
                         $.each(data.j.clusters, function (k, v) {
-                            console.log("! "+v);
+                            console.log("! " + v);
                             $.each(diffList, function (index, val) {
-                                console.log(val+" == "+v.uuid);
+                                console.log(val + " == " + v.uuid);
                                 if (v.uuid.toString() === val.toString()) {
                                     $("#tableContent").append(
-                                        '<tr id='+v.uuid+' class="clustertable"><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + '_id /><label for=' + v.uuid + '_id >&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
+                                        '<tr id=' + v.uuid + ' class="clustertable"><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + '_id /><label for=' + v.uuid + '_id >&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
                                     );
                                 }
                             });
@@ -116,11 +116,12 @@
                     }
                     else {
                         $("#tableContent").append(
-                            '<tr id='+v.uuid+' class="clustertable"><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + '_id /><label for=' + v.uuid + '_id >&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
+                            '<tr id=' + v.uuid + ' class="clustertable"><td><input class="groupcheckbox" value=' + v.uuid + ' type="checkbox" id=' + v.uuid + '_id /><label for=' + v.uuid + '_id >&nbsp;</label></td><td id=' + v.uuid + '_id>' + v.uuid + '</td><td id=' + v.uuid + '_nm>' + v.name + '</td><td id=' + v.uuid + '_mc>' + v.master_count + '</td><td id=' + v.uuid + '_nc>' + v.node_count + '</td><td id=' + v.uuid + '_st>' + v.status + '</td></tr>'
                         );
                     }
                 });
             }
+
             $(document).ready(setInterval(function () {
                 update_values()
             }, 10000));
