@@ -34,6 +34,7 @@ class Plugin:
         pass
 
     def swift(self):
+        #curl -s -d '{"auth": {"tenantName": "user", "passwordCredentials": {"username": "user", "password": "pass"}}}' -H 'Content-type: application/json' http://localhost:35357/v2.0/tokens | python -m json.tool
         pass
 
 
