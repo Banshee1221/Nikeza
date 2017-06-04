@@ -9,7 +9,6 @@ app.config.from_object(__name__)
 app.config['CACHE_TYPE'] = 'simple'
 app.secret_key = urandom(24)
 
-
 @app.before_request
 def before_request():
     g.error = False
@@ -22,8 +21,9 @@ def before_request():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    if request.args.get('error'):
+    if request.args.get('error') and 'user' in session:
         g.error = True
+        session.pop('user', None)
     if g.user and not g.error:
         return redirect(url_for('queue'))
     if request.method == 'POST':
@@ -34,6 +34,7 @@ def index():
             return redirect(url_for('queue'))
         else:
             g.error = True
+            session.pop('user', None)
 
     return render_template('index.html',
                            title=get_settings()["general"]["sysname"],
@@ -50,12 +51,13 @@ def getsession():
 
 @app.route('/queue', methods=['GET', 'POST'])
 def queue():
-    if request.method == 'POST':
-        print((request.get_json()))
     if g.user:
         try:
             operation = operations.Ops(g.user, g.password)
-        except Exception:
+            if request.method == 'POST':
+                print((request.get_json()))
+                operation.stop_run(request.get_json())
+        except Exception as e:
             return redirect(url_for("index", error=True))
         return render_template("queue.html",
                                title=get_settings()["general"]["sysname"],

@@ -15,7 +15,12 @@ class Ops:
         Receives the list of running objects as dict
         :return:
         """
-        return self.plug.magnum_queue_list()
+        return self.plug.queue_list()
+
+    def stop_run(self, listOfIds):
+        for item in listOfIds:
+            if item is not None:
+                self.plug.stop_job(item)
 
 
 if __name__ == "__main__":
