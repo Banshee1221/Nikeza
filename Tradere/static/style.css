@@ -37,9 +37,6 @@ body {
 .carderr {
     height: 360px !important;
 }
-.mdl-card--expand {
-    margin-bottom: -10px;
-}
 
 .horalign {
     margin: 0 auto;

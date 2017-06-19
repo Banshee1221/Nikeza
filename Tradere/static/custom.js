@@ -54,3 +54,6 @@ function arr_diff(a1, a2) {
     return diff;
 }
 
+$(document).ready(function() {
+    $('select').material_select();
+  });
