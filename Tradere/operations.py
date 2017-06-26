@@ -1,7 +1,8 @@
 import importlib
 from parser import get_settings
 
-plugin = importlib.import_module("plugins." + str(get_settings()['backend']['platform_file']).replace(".py", ""))
+plugin = importlib.import_module("plugins.user." + str(get_settings()['backend']['platform_file']).replace(".py", ""))
+storage = importlib.import_module("plugins.storage." + str(get_settings()['system']['storage_backend']).replace(".py", ""))
 
 
 class Ops:

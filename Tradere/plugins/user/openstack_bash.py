@@ -38,9 +38,9 @@ class Plugin:
             clusterId) + ' -H"OpenStack-API-Version: container-infra latest" -H"X-Auth-Token: ' + self.token + '" -H "Content-Type: application/octet-stream" -H "User-Agent: None"'
         process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)
 
-    def swift(self):
+    def swift_container_overview(self):
         return ''
-#        curl -i http://controller.cluster:8080/v1/AUTH_99ac7a7666064b0bba777c3a43e56c22?format=json -X GET -H "X-Auth-Token: gAAAAABZR-Ov0uVkg_vFSDCpEI6Uea-XIR84unopD6KgTEbtWX31fB2MFn2LUhMccyu2kMqs3XlRCMgF6Gtz9gE-0fwpRXD1NygMbHP07nSL13wCTL0WCa59VqJAa8-e7YW_e25mPzUeAk4RYgiohczQ4DhbaxwG59LIp0MJEdOLXISwAt71kkQ"
+#       curl -i http://controller.cluster:8080/v1/AUTH_99ac7a7666064b0bba777c3a43e56c22?format=json -X GET -H "X-Auth-Token: gAAAAABZR-Ov0uVkg_vFSDCpEI6Uea-XIR84unopD6KgTEbtWX31fB2MFn2LUhMccyu2kMqs3XlRCMgF6Gtz9gE-0fwpRXD1NygMbHP07nSL13wCTL0WCa59VqJAa8-e7YW_e25mPzUeAk4RYgiohczQ4DhbaxwG59LIp0MJEdOLXISwAt71kkQ"
 
 
 # Non-cred functions

@@ -79,6 +79,12 @@ def updateQueue():
 @app.route('/new')
 def new():
     if g.user:
+        try:
+            if request.method == 'POST':
+                print((request.get_json()))
+        except Exception as e:
+            return redirect(url_for("index", error=True))
+        
         return render_template("new.html",
                                title=get_settings()["general"]["sysname"])
     return redirect(url_for("index"))
