@@ -1,5 +1,6 @@
 import importlib
 from parser import get_settings
+from plugins.system import *
 
 plugin = importlib.import_module("plugins.user." + str(get_settings()['backend']['platform_file']).replace(".py", ""))
 storage = importlib.import_module("plugins.storage." + str(get_settings()['system']['storage_backend']).replace(".py", ""))
@@ -22,6 +23,9 @@ class Ops:
         for item in listOfIds:
             if item is not None:
                 self.plug.stop_job(item)
+
+    def get_storage_json(self):
+        return "test"
 
 
 if __name__ == "__main__":
