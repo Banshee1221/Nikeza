@@ -1,6 +1,7 @@
 settings_dict = {
     "general": {},
-    "backend": {}
+    "backend": {},
+    "system": {}
 }
 
 
