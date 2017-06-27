@@ -84,11 +84,10 @@ def new():
                 print((request.get_json()))
         except Exception as e:
             return redirect(url_for("index", error=True))
-
-        operation = operations.Ops(g.user, g.passwd)
-        operation.get_storage_json()
+        operation = operations.Ops(g.user, g.password)
         return render_template("new.html",
-                               title=get_settings()["general"]["sysname"])
+                               title=get_settings()["general"]["sysname"],
+                               initData=operation.get_storage_json())
     return redirect(url_for("index"))
 
 

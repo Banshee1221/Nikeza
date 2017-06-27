@@ -56,4 +56,10 @@ function arr_diff(a1, a2) {
 
 $(document).ready(function() {
     $('select').material_select();
+
+    $(function () { $('#html1').jstree(); });
+
+    $('#jstree_demo_div').on("changed.jstree", function (e, data) {
+      console.log(data.selected);
+    });
   });
