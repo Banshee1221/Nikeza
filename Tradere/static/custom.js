@@ -54,12 +54,31 @@ function arr_diff(a1, a2) {
     return diff;
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     $('select').material_select();
 
-    $(function () { $('#html1').jstree(); });
-
-    $('#jstree_demo_div').on("changed.jstree", function (e, data) {
-      console.log(data.selected);
-    });
-  });
+    $('#html1')
+        .jstree({
+            "plugins": ["json_data", "checkbox"],
+            "core": {
+                "themes": {
+                    'name': 'proton',
+                    'responsive': true
+                },
+                "check_callback": true,
+                data: {
+                    "type": 'GET',
+                    "url": "/_new",
+                    data: function (node) {
+                        return {
+                            'id': (node.id == '#') ? 'root' : node.id
+                        };
+                    },
+                    "success": function (new_data) {
+                        console.log(new_data);
+                        return new_data;
+                    }
+                }
+            }
+        });
+});

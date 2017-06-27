@@ -34,7 +34,7 @@ class Plugin:
         return get_json(process.stdout.decode('utf-8'), 11)
 
     def stop_job(self, clusterId):
-        stop_req = 'curl -g -i -X DELETE http://' + fqdn + ':' + magnum_port + '/v1/clusters/' + str(
+        stop_req = 'curl -s -g -i -X DELETE http://' + fqdn + ':' + magnum_port + '/v1/clusters/' + str(
             clusterId) + ' -H"OpenStack-API-Version: container-infra latest" -H"X-Auth-Token: ' + self.token + '" -H "Content-Type: application/octet-stream" -H "User-Agent: None"'
         process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)
 

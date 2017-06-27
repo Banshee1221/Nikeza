@@ -7,7 +7,7 @@ from flask import Flask, request, render_template, session, g, redirect, url_for
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['CACHE_TYPE'] = 'simple'
-app.secret_key = urandom(24)
+app.secret_key = ':\xe1\xfd\xa0n\xec\xe5\xb8\xb4\x95+\xcd\xce\x81\xe7\x99\xd4\xb9\xa7$\xc3\xf5e\x9a'
 
 @app.before_request
 def before_request():
@@ -31,6 +31,7 @@ def index():
         if request.form['username'] != '' or request.form['password'] != '':
             session['user'] = request.form['username']
             session['password'] = request.form['password']
+            session['requestCont'] = ""
             return redirect(url_for('queue'))
         else:
             g.error = True
@@ -45,7 +46,7 @@ def index():
 @app.route('/getsession')
 def getsession():
     if 'user' in session:
-        return session['user']
+        return session
     return "Not logged in"
 
 
@@ -76,19 +77,37 @@ def updateQueue():
     return redirect(url_for("index", error=True))
 
 
-@app.route('/new')
+@app.route('/new', methods=['GET', 'POST'])
 def new():
     if g.user:
         try:
+            operation = operations.Ops(g.user, g.password)
             if request.method == 'POST':
-                print((request.get_json()))
+                print("!!"+str(request.get_json()).strip())
+                session['requestCont'] = str(request.get_json()).strip()
+                session.modified = True
         except Exception as e:
             return redirect(url_for("index", error=True))
-        operation = operations.Ops(g.user, g.password)
         return render_template("new.html",
                                title=get_settings()["general"]["sysname"],
-                               initData=operation.get_storage_json())
+                               initData=operation.get_storage())
     return redirect(url_for("index"))
+
+
+@app.route('/_new', methods=['POST', 'GET'])
+def updateTree():
+    if g.user:
+        try:
+            operation = operations.Ops(g.user, g.password)
+            if 'id' in request.args:
+                if request.args.get('id') != "root":
+                    return jsonify(operation.get_storage_inner(request.args.get('id')))
+        except Exception as e:
+            print("well oops :/", e)
+            return ""
+        print("!!"+session['requestCont'])
+        return jsonify(operation.get_storage())
+    return redirect(url_for("index", error=True))
 
 
 

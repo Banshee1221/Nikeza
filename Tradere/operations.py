@@ -31,8 +31,11 @@ class Ops:
             if item is not None:
                 self.plug.stop_job(item)
 
-    def get_storage_json(self):
+    def get_storage(self):
         return self.stor.overview()
+
+    def get_storage_inner(self, containerName):
+        return self.stor.traverse(containerName)
 
 
 if __name__ == "__main__":

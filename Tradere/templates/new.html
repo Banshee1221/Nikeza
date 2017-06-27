@@ -33,7 +33,7 @@
                         <div id="html1">
                             <ul>
                             {% for items in initData %}
-                                <li>{{ items['name'] }}</li>
+                                <li id="{{ items['name'] }} data-jstree='{'opened':true}'>">{{ items['name'] }}</li>
                             {% endfor %}
                             </ul>
                         </div>

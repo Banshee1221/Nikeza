@@ -14,7 +14,7 @@ class Storage:
 
     def __init__(self, user, passwd):
         print("openstack_plugin______")
-        token_req = 'curl -s -d \'{"auth": {"tenantName": "' + str(
+        token_req = 'curl -s -s -d \'{"auth": {"tenantName": "' + str(
             user) + '", "passwordCredentials": {"username": "' + str(user) + '", "password": "' + str(
             passwd) + '"}}}\' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens'
 
@@ -31,21 +31,26 @@ class Storage:
 
     def overview(self):
         #return ''
-        process_str = 'curl -i http://controller.cluster:8080/v1/AUTH_' + str(
+        process_str = 'curl -s -i http://controller.cluster:8080/v1/AUTH_' + str(
             self.id)+'?format=json -X GET -H "X-Auth-Token: '+str(self.token)+'"'
         process = subprocess.run(process_str, shell=True, stdout=subprocess.PIPE)
         result = str(process.stdout.strip().decode('utf-8').split("\n")[-1])
         print(result)
         #return swift_overview_formatter(result)
-        return ast.literal_eval(result)
+        retArr = []
+        for items in ast.literal_eval(result):
+            retArr.append({"id": items['name'], "text": items['name'], "children": True})
+        return retArr
 
     def traverse(self, container):
-        process_str = 'curl -i http://controller.cluster:8080/v1/AUTH_' + str(
+        process_str = 'curl -s -i http://controller.cluster:8080/v1/AUTH_' + str(
             self.id) + '/'+str(container)+'?format=json -X GET -H "X-Auth-Token: ' + str(self.token) + '"'
         process = subprocess.run(process_str, shell=True, stdout=subprocess.PIPE)
         result = str(process.stdout.strip().decode('utf-8').split("\n")[-1])
-        print(result)
-        return swift_overview_formatter(result)
+        retArr = []
+        for items in ast.literal_eval(result):
+            retArr.append({"id": items['name'], "text": items['name'], "children": True})
+        return retArr
 
 def swift_overview_formatter(json_in, type="inner"):
     newDict = {}
