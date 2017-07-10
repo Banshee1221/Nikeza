@@ -1,0 +1,10 @@
+#cloud-config
+packages:
+  - docker
+  - python
+runcmd:
+  - yes | pip install cwlref-runner
+  - groupadd docker
+  - gpasswd -a fedora docker
+  - systemctl enable docker
+  - systemctl start docker

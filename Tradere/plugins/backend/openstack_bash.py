@@ -3,6 +3,7 @@ import subprocess
 
 fqdn = "controller.cluster"
 magnum_port = "9511"
+nova_port = "8774"
 
 
 class Plugin:
@@ -27,20 +28,26 @@ class Plugin:
             raise Exception
         self.id = str(self.result_json['access']['token']['tenant']['id'])
 
+    # def queue_list(self):
+    #    command = 'curl -si -H"X-Auth-Token:{0}" -H "Content-type: application/json" http://{1}:{2}/v1/clusters'.format(
+    #        str(self.token), str(fqdn), str(magnum_port))
+    #    process = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
+    #    return get_json(process.stdout.decode('utf-8'), 11)
+
     def queue_list(self):
-        command = 'curl -si -H"X-Auth-Token:{0}" -H "Content-type: application/json" http://{1}:{2}/v1/clusters'.format(
-            str(self.token), str(fqdn), str(magnum_port))
+        command = 'curl -si -H"X-Auth-Token:{0}" -H "Content-type: application/json" http://{1}:{2}/v2.1/{3}/servers/detail'.format(
+            self.token, fqdn, nova_port, self.id)
         process = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
-        return get_json(process.stdout.decode('utf-8'), 11)
+        return get_json(process.stdout.decode('utf-8'), 10)
 
-    def stop_job(self, clusterId):
-        stop_req = 'curl -s -g -i -X DELETE http://' + fqdn + ':' + magnum_port + '/v1/clusters/' + str(
-            clusterId) + ' -H"OpenStack-API-Version: container-infra latest" -H"X-Auth-Token: ' + self.token + '" -H "Content-Type: application/octet-stream" -H "User-Agent: None"'
-        process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)
+    # def stop_job(self, clusterId):
+    #    stop_req = 'curl -s -g -i -X DELETE http://' + fqdn + ':' + magnum_port + '/v1/clusters/' + str(
+    #        clusterId) + ' -H"OpenStack-API-Version: container-infra latest" -H"X-Auth-Token: ' + self.token + '" -H "Content-Type: application/octet-stream" -H "User-Agent: None"'
+    #    process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)
 
-
-
-# Non-cred functions
+    def stop_job(self, serverId):
+        stop_req = 'curl -H "X-Auth-Token:{0}" -X DELETE -H "Content-type: application/json" http://{1}:{2}/v2.1/servers/{3}'.format(self.token, fqdn, nova_port, serverId)
+        process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)  # Non-cred functions
 
 def get_json(response, lineNum, multiline=True):
     if multiline:
