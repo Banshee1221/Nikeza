@@ -37,6 +37,17 @@ class Ops:
     def get_storage_inner(self, containerName):
         return self.stor.traverse(containerName)
 
+    def create_job(self):
+        return True
+
+
+def create_script(id, args):
+    userScript = open('runtime/{0}.sh'.format(id))
+    print(userScript.readlines())
+    userScript.close()
+    fl = open("operations/"+str(get_settings()['operations']['ops_postscript']), "a+")
+
+    fl.close()
 
 if __name__ == "__main__":
     ops = Ops("one", "two")

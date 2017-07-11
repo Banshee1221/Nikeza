@@ -11,17 +11,23 @@
                         <hr/>
                         <p>Please select your CWL workflow for the appropriate data to be selected below.</p>
                         <br>
-                        <form action="#">
+                        <form id="upload-file" method="post" enctype="multipart/form-data">
                             <div class="file-field input-field">
                                 <div class="btn">
                                     <span>CWL File</span>
-                                    <input type="file">
+                                    <input name="file" id="file" type="file">
                                 </div>
                                 <div class="file-path-wrapper">
-                                    <input class="file-path validate" type="text">
+                                    <input class="file-path validate" id="fileName" type="text">
                                 </div>
                             </div>
                         </form>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="arguments" type="text">
+                                <label for="arguments">Arguments. E.g. ./cwl-runner</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -34,7 +40,8 @@
                             <ul>
                                 {% for items in initData %}
                                     {% if items['children'] %}
-                                        <li id="{{ items['text'] }}" data-jstree="{'opened':true, 'type':'root'}'>">{{ items['text'] }}</li>
+                                        <li id="{{ items['text'] }}"
+                                            data-jstree="{'opened':true, 'type':'root'}'>">{{ items['text'] }}</li>
                                     {% endif %}
                                 {% endfor %}
                             </ul>
@@ -50,18 +57,18 @@
                         <div class="input-field col s12">
                             <select id="selectIn">
                                 <option value="" disabled selected>Choose your option</option>
-                                <option value="1">/scratch</option>
-                                <option value="2">/data</option>
-                                <option value="3">/root/data</option>
+                                <option value="/scratch">/scratch</option>
+                                <option value="/data">/data</option>
+                                <option value="/root/data">/root/data</option>
                             </select>
                             <label>Data Input Mountpoint</label>
                         </div>
                         <div class="input-field col s12">
                             <select id="selectOut">
                                 <option value="" disabled selected>Choose your option</option>
-                                <option value="1">Option 1</option>
-                                <option value="2">Option 2</option>
-                                <option value="3">Option 3</option>
+                                <option value="/scratch">/scratch</option>
+                                <option value="/data">/data</option>
+                                <option value="/root/data">/root/data</option>
                             </select>
                             <label>Data Output Mountpoint</label>
                         </div>
@@ -93,8 +100,8 @@
                         <p>The workflow will fail if the above options are not correct.</p>
                     </div>
                     <div class="card-action">
-                        <a href="#">Continue</a>
-                        <a href="#">Exit</a>
+                        <a href="#" id="btn_accept">Continue</a>
+                        <a href="#" id="btn_reject">Exit</a>
                     </div>
                 </div>
             </div>

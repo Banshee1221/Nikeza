@@ -13,7 +13,7 @@ class Storage:
     id = None
 
     def __init__(self, user, passwd):
-        print("openstack_plugin______")
+        #print("openstack_plugin______")
         token_req = 'curl -s -s -d \'{"auth": {"tenantName": "' + str(
             user) + '", "passwordCredentials": {"username": "' + str(user) + '", "password": "' + str(
             passwd) + '"}}}\' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens'
@@ -22,12 +22,12 @@ class Storage:
         self.result_json = json.loads(process.stdout.strip().decode('utf-8'))
         try:
             self.token = str(self.result_json['access']['token']['id'])
-            print(self.token)
+            #print(self.token)
         except TypeError:
             print("error, token not found")
             raise Exception
         self.id = str(self.result_json['access']['token']['tenant']['id'])
-        print(self.id)
+        #print(self.id)
 
     def overview(self):
         #return ''
@@ -35,7 +35,7 @@ class Storage:
             self.id)+'?format=json -X GET -H "X-Auth-Token: '+str(self.token)+'"'
         process = subprocess.run(process_str, shell=True, stdout=subprocess.PIPE)
         result = str(process.stdout.strip().decode('utf-8').split("\n")[-1])
-        print(result)
+        #print(result)
         #return swift_overview_formatter(result)
         retArr = []
         for items in ast.literal_eval(result):
@@ -55,6 +55,6 @@ class Storage:
 def swift_overview_formatter(json_in, type="inner"):
     newDict = {}
     parsedList = ast.literal_eval(json_in)
-    for k in parsedList:
-        print(k['name'])
+    #for k in parsedList:
+    #   print(k['name'])
     return ""

@@ -1,12 +1,15 @@
 from os import urandom
 from parser import get_settings
 import json
+import uuid
 import operations
+import os
 from flask import Flask, request, render_template, session, g, redirect, url_for, jsonify
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['CACHE_TYPE'] = 'simple'
+app.config['UPLOAD_FOLDER'] = 'runtime'
 app.secret_key = ':\xe1\xfd\xa0n\xec\xe5\xb8\xb4\x95+\xcd\xce\x81\xe7\x99\xd4\xb9\xa7$\xc3\xf5e\x9a'
 
 @app.before_request
@@ -31,7 +34,10 @@ def index():
         if request.form['username'] != '' or request.form['password'] != '':
             session['user'] = request.form['username']
             session['password'] = request.form['password']
+            session['id'] = uuid.uuid4()
             session['requestCont'] = ""
+            session['file'] = None
+            session['other'] = ""
             return redirect(url_for('queue'))
         else:
             g.error = True
@@ -46,7 +52,8 @@ def index():
 @app.route('/getsession')
 def getsession():
     if 'user' in session:
-        return session
+        response = "User: {0} | Password: {1} | Session: {2}".format(session['user'], session['password'], session['id'])
+        return response
     return "Not logged in"
 
 
@@ -56,7 +63,7 @@ def queue():
         try:
             operation = operations.Ops(g.user, g.password)
             if request.method == 'POST':
-                print((request.get_json()))
+                print("[+] queue:" + str(request.get_json()))
                 operation.stop_run(request.get_json())
         except Exception as e:
             return redirect(url_for("index", error=True))
@@ -83,13 +90,13 @@ def new():
         try:
             operation = operations.Ops(g.user, g.password)
             if request.method == 'POST':
-                print("!!"+str(request.get_json()).strip())
+                print("[+] new: "+str(request.get_json()).strip())
                 session['requestCont'] = str(request.get_json()).strip()
                 session.modified = True
         except Exception as e:
             return redirect(url_for("index", error=True))
         storageData = operation.get_storage()
-        print("swiftdata:",storageData)
+        print("[+] new: "+str(storageData))
         return render_template("new.html",
                                title=get_settings()["general"]["sysname"],
                                initData=storageData,
@@ -102,14 +109,33 @@ def updateTree():
     if g.user:
         try:
             operation = operations.Ops(g.user, g.password)
+            print("[+] _new: "+str(request.args))
             if 'id' in request.args:
                 if request.args.get('id') != "root":
                     return jsonify(operation.get_storage_inner(request.args.get('id')))
         except Exception as e:
-            print("well oops :/", e)
+            print("[+] _new: well oops :/", e)
             return ""
-        print("!!"+session['requestCont'])
+        print("[+] _new: "+str(session['requestCont']))
         return jsonify(operation.get_storage())
+    return redirect(url_for("index", error=True))
+
+@app.route('/_upload', methods=['POST'])
+def upload():
+    if g.user:
+        try:
+            if request.get_json() is not None:
+                session['other'] = request.get_json()
+            if len(request.files) > 0:
+                request.files['file'].save("runtime/{0}".format(session['other']['cwlFileName']))
+                #print("[+] _upload: " + str(session['file'].decode('utf-8')))
+                #print("[+] _upload: " + str(session['other']))
+                operations.create_script(session['id'], session['other'])
+                #operations.Ops(g.user, g.password).create_job()
+        except Exception as e:
+            print("[+] _upload: well oops :/", e)
+            return ""
+        return "success"
     return redirect(url_for("index", error=True))
 
 

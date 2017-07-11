@@ -13,7 +13,7 @@ class Plugin:
     result_json = ""
 
     def __init__(self, user, passwd):
-        print("openstack_plugin______")
+        #print("openstack_plugin______")
         token_req = 'curl -s -d \'{"auth": {"tenantName": "' + str(
             user) + '", "passwordCredentials": {"username": "' + str(user) + '", "password": "' + str(
             passwd) + '"}}}\' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens'
@@ -22,7 +22,7 @@ class Plugin:
         self.result_json = json.loads(process.stdout.strip().decode('utf-8'))
         try:
             self.token = str(self.result_json['access']['token']['id'])
-            print(self.token)
+            #print(self.token)
         except TypeError:
             print("error, token not found")
             raise Exception

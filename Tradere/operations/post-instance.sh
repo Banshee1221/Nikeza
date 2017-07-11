@@ -1,3 +1,5 @@
+#!/bin/bash
+
 TIMEOUT=6
 COUNT=0
 while [ ! -f /var/lib/cloud/instance/boot-finished ]

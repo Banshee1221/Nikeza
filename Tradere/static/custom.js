@@ -92,7 +92,8 @@ $(document).ready(function () {
                 "child": {
                     "icon": "/static/images/ic_attachment_black_24px.svg"
                 }
-            }})
+            }
+        })
         .on('loaded.jstree', function () {
             $('#html1').jstree('open_all')
                 .bind('ready.jstree', function (ev, dt) {
@@ -110,6 +111,82 @@ $(document).ready(function () {
                 }
             }
         });
+
+    $("#btn_accept").on("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        var file = new FormData($('#upload-file')[0]);
+        var arguments = $("#arguments")[0].value;
+
+
+        var inpt = [];
+        $.each($("#html1").jstree(true).get_selected('full', true), function (ind, val) {
+            if (val['type'] === "root") {
+                return true
+            }
+            else {
+                inpt.push({'fileName': val['text'], 'container': val['parent']})
+            }
+        });
+        var dataIn = $("#selectIn")[0].value;
+        var dataOut = $("#selectOut")[0].value;
+        var outpt = $("#html2").jstree(true).get_selected('full', true);
+
+        if (inpt.length < 1) {
+            alert("Please select input data!");
+            return false;
+        }
+        if (outpt.length != 1) {
+            alert("Please select an output location!");
+            return false;
+        }
+        if (arguments === "") {
+            alert("Please insert execution arguments!");
+            return false;
+        }
+        if (dataIn === "") {
+            alert("Please select data input directory!");
+            return false;
+        }
+        if (dataOut === "") {
+            alert("Please select data output directory!");
+            return false;
+        }
+
+        var args = {
+            "cwlFileName": $("#fileName")[0].value,
+            "args": arguments,
+            "in_dat": inpt,
+            "in_mnt": dataIn,
+            "out_mnt": dataOut,
+            "out_dat": outpt[0]['text']
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '/_upload',
+            data: JSON.stringify(args),
+            contentType: "application/json; charset=utf-8",
+            async: false,
+            success: function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/_upload',
+                    data: file,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    async: false,
+                    success: function (data) {
+                        document.location.href = "/queue";
+                    }
+                });
+            }
+        });
+
+
+    })
 });
 
 function update_values() {
