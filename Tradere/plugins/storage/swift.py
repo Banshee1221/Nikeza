@@ -39,7 +39,7 @@ class Storage:
         #return swift_overview_formatter(result)
         retArr = []
         for items in ast.literal_eval(result):
-            retArr.append({"id": items['name'], "text": items['name'], "children": True})
+            retArr.append({"id": items['name'], "text": items['name'], "children": True, "type": "root"})
         return retArr
 
     def traverse(self, container):
@@ -49,7 +49,7 @@ class Storage:
         result = str(process.stdout.strip().decode('utf-8').split("\n")[-1])
         retArr = []
         for items in ast.literal_eval(result):
-            retArr.append({"id": items['name'], "text": items['name'], "children": True})
+            retArr.append({"id": items['name'], "text": items['name'], "children": False, "type": "child"})
         return retArr
 
 def swift_overview_formatter(json_in, type="inner"):

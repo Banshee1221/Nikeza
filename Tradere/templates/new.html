@@ -32,9 +32,11 @@
                         <hr/>
                         <div id="html1">
                             <ul>
-                            {% for items in initData %}
-                                <li id="{{ items['name'] }} data-jstree='{'opened':true}'>">{{ items['name'] }}</li>
-                            {% endfor %}
+                                {% for items in initData %}
+                                    {% if items['children'] %}
+                                        <li id="{{ items['text'] }}" data-jstree="{'opened':true, 'type':'root'}'>">{{ items['text'] }}</li>
+                                    {% endif %}
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -69,7 +71,22 @@
             <div class="col s12 m12">
                 <div class="card">
                     <div class="card-content">
-                        <span class="card-title center-align">Step 4: Execute</span>
+                        <span class="card-title center-align">Step 4: Data Output</span>
+                        <hr/>
+                        <div id="html2">
+                            <ul>
+                                {% for item in initData2 %}
+                                    <li id="{{ item['text'] }}_output">{{ item['text'] }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title center-align">Step 5: Execute</span>
                         <hr/>
                         <p>Please confirm that your selections above are correct.</p>
                         <br/>

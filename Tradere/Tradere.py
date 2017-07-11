@@ -88,9 +88,12 @@ def new():
                 session.modified = True
         except Exception as e:
             return redirect(url_for("index", error=True))
+        storageData = operation.get_storage()
+        print("swiftdata:",storageData)
         return render_template("new.html",
                                title=get_settings()["general"]["sysname"],
-                               initData=operation.get_storage())
+                               initData=storageData,
+                               initData2=storageData)
     return redirect(url_for("index"))
 
 

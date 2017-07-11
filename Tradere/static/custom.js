@@ -59,7 +59,7 @@ $(document).ready(function () {
 
     $('#html1')
         .jstree({
-            "plugins": ["json_data", "checkbox"],
+            "plugins": ["json_data", "checkbox", "types"],
             "core": {
                 "themes": {
                     'name': 'proton',
@@ -70,14 +70,43 @@ $(document).ready(function () {
                     "type": 'GET',
                     "url": "/_new",
                     data: function (node) {
+                        console.log("data:");
+                        console.log(node);
+                        console.log("---------")
                         return {
                             'id': (node.id == '#') ? 'root' : node.id
                         };
                     },
                     "success": function (new_data) {
+                        console.log("newdata:");
                         console.log(new_data);
+                        console.log("---------")
                         return new_data;
                     }
+                }
+            },
+            types: {
+                "root": {
+                    "icon": "/static/images/ic_folder_open_black_24px.svg"
+                },
+                "child": {
+                    "icon": "/static/images/ic_attachment_black_24px.svg"
+                }
+            }})
+        .on('loaded.jstree', function () {
+            $('#html1').jstree('open_all')
+                .bind('ready.jstree', function (ev, dt) {
+                    $('#html1').jstree('close_all');
+                });
+        });
+
+    $('#html2')
+        .jstree({
+            "plugins": ["json_data", "checkbox"],
+            "core": {
+                "themes": {
+                    'name': 'proton',
+                    'responsive': true
                 }
             }
         });
