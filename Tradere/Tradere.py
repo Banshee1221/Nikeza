@@ -130,7 +130,8 @@ def upload():
                 request.files['file'].save("runtime/{0}".format(session['other']['cwlFileName']))
                 #print("[+] _upload: " + str(session['file'].decode('utf-8')))
                 #print("[+] _upload: " + str(session['other']))
-                operations.create_script(session['id'], session['other'])
+                operation = operations.Ops(g.user, g.password)
+                operation.create_script(session['id'], session['other']['cwlFileName'], session['other'])
                 #operations.Ops(g.user, g.password).create_job()
         except Exception as e:
             print("[+] _upload: well oops :/", e)

@@ -8,6 +8,8 @@ import subprocess
 
 class Storage:
 
+    url = "controller.cluster"
+    port = "8080"
     token = None
     result_json = None
     id = None
@@ -31,7 +33,7 @@ class Storage:
 
     def overview(self):
         #return ''
-        process_str = 'curl -s -i http://controller.cluster:8080/v1/AUTH_' + str(
+        process_str = 'curl -s -i http://'+ self.url+ ':'+ self.port +'/v1/AUTH_' + str(
             self.id)+'?format=json -X GET -H "X-Auth-Token: '+str(self.token)+'"'
         process = subprocess.run(process_str, shell=True, stdout=subprocess.PIPE)
         result = str(process.stdout.strip().decode('utf-8').split("\n")[-1])
@@ -43,7 +45,7 @@ class Storage:
         return retArr
 
     def traverse(self, container):
-        process_str = 'curl -s -i http://controller.cluster:8080/v1/AUTH_' + str(
+        process_str = 'curl -s -i http://'+ self.url+ ':'+ self.port +'/v1/AUTH_' + str(
             self.id) + '/'+str(container)+'?format=json -X GET -H "X-Auth-Token: ' + str(self.token) + '"'
         process = subprocess.run(process_str, shell=True, stdout=subprocess.PIPE)
         result = str(process.stdout.strip().decode('utf-8').split("\n")[-1])
@@ -51,6 +53,16 @@ class Storage:
         for items in ast.literal_eval(result):
             retArr.append({"id": items['name'], "text": items['name'], "children": False, "type": "child"})
         return retArr
+
+    def getId(self):
+        return self.id
+
+    def getToken(self):
+        return self.token
+
+    def getURL(self, container, item):
+        stringToSend = "http://{0}:{1}/v1/AUTH_{2}/{3}/{4}".format(self.url, self.port, self.id, container, item)
+        return stringToSend
 
 def swift_overview_formatter(json_in, type="inner"):
     newDict = {}

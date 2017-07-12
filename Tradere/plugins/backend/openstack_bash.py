@@ -45,6 +45,14 @@ class Plugin:
     #        clusterId) + ' -H"OpenStack-API-Version: container-infra latest" -H"X-Auth-Token: ' + self.token + '" -H "Content-Type: application/octet-stream" -H "User-Agent: None"'
     #    process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)
 
+    def start_job(self, jobName):
+        #Create volume
+        #Image
+        #Start instance with vol and img
+        stop_req = 'curl -H "X-Auth-Token:{0}" -X DELETE -H "Content-type: application/json" http://{1}:{2}/v2.1/servers/{3}'.format(
+            self.token, fqdn, nova_port, serverId)
+        process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)  # Non-cred functions
+
     def stop_job(self, serverId):
         stop_req = 'curl -H "X-Auth-Token:{0}" -X DELETE -H "Content-type: application/json" http://{1}:{2}/v2.1/servers/{3}'.format(self.token, fqdn, nova_port, serverId)
         process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)  # Non-cred functions
