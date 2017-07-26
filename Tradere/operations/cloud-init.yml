@@ -1,10 +1,6 @@
 #cloud-config
 packages:
-  - docker
+  - dnf-plugins-core
   - python
-runcmd:
-  - yes | pip install cwlref-runner
-  - groupadd docker
-  - gpasswd -a fedora docker
-  - systemctl enable docker
-  - systemctl start docker
+  - zip
+  - tar
