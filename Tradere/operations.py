@@ -59,8 +59,7 @@ class Ops:
         copyfile("operations/" + str(get_settings()['operations']['ops_postscript']), "runtime/"+str(uid)+".sh")
         overall = "bootcmd:\n" \
                   "  - mkdir -p {0}\n" \
-                  "  - mkdir -p {1}\n" \
-                  "  - dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo\n".format(args['in_mnt'], args['out_mnt'])
+                  "  - mkdir -p {1}\n".format(args['in_mnt'], args['out_mnt'])
 
         userScript = open('runtime/{0}'.format(fileName))
         userScriptData = userScript.read()
@@ -73,7 +72,9 @@ class Ops:
                    "    path: {1}/{2}\n" \
                    "    owner: fedora:fedora\n" \
                    "runcmd:\n" \
-                   "  - dnf -y install docker-ce" \
+                   "  - dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo\n" \
+                   "  - dnf makecache fast\n" \
+                   "  - dnf -y install docker-ce\n" \
                    "  - yes | pip install cwlref-runner\n" \
                    "  - groupadd docker\n" \
                    "  - gpasswd -a fedora docker\n" \
