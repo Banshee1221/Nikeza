@@ -54,12 +54,13 @@ class Ops:
         #sleep(5)
         #print(self.plug.get_instance_ip(job_id))
 
-    def create_script(self, uid, fileName, args):
+    def create_script(self, uid, fileName, args, cookie, user, passwd):
 
         copyfile("operations/" + str(get_settings()['operations']['ops_postscript']), "runtime/"+str(uid)+".sh")
         overall = "bootcmd:\n" \
                   "  - mkdir -p {0}\n" \
-                  "  - mkdir -p {1}\n".format(args['in_mnt'], args['out_mnt'])
+                  "  - mkdir -p {1}\n" \
+                  "  - curl http://169.254.169.254/openstack/latest/meta_data.json -o meta_data.json\n".format(args['in_mnt'], args['out_mnt'])
 
         userScript = open('runtime/{0}'.format(fileName))
         userScriptData = userScript.read()
@@ -74,7 +75,7 @@ class Ops:
                    "runcmd:\n" \
                    "  - dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo\n" \
                    "  - dnf makecache fast\n" \
-                   "  - dnf -y install docker-ce\n" \
+                   "  - dnf -y install docker-ce jq\n" \
                    "  - yes | pip install cwlref-runner\n" \
                    "  - groupadd docker\n" \
                    "  - gpasswd -a fedora docker\n" \
@@ -83,6 +84,8 @@ class Ops:
                    "  - chown -R fedora:fedora {3}\n" \
                    "  - chown -R fedora:fedora {4}\n".format(b64userScriptData, args['in_mnt'], fileName, args['out_mnt'], args['in_mnt'])
 
+
+
         for item in args['in_dat']:
             download_command = "cd {0} && {{ curl -O {1} ; cd -; }}\n".format(args['in_mnt'],
                                                                             self.stor.getURL(item['container'],
@@ -90,8 +93,14 @@ class Ops:
             overall += "  - {0}".format(download_command)
         overall += "  - cd {0}\n".format(args['out_mnt'])
         overall += "  - {0}\n".format(args['args'])
-        overall += "  - cd {0} && cwl-runner {1}\n".format(args['in_mnt'], args['args'])
+        overall += "  - cd {0} && cwl-runner {1} > cwl_run.txt\n".format(args['in_mnt'], args['args'])
+        overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.tenant.id > id.txt\n".format(user, passwd)
+        overall += "  - cat id.txt\n"
+        #overall += "  - [ curl, -s, -s, -d, '\'{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}\'', -H, '\"Content-type: application/json\"', 'http://controller.cluster:35357/v2.0/tokens', |, 'jq .access.token.id', >, token.txt ]\n".format(user, passwd)
+        #overall += "  - [ cat, cwl_run.txt, |, jq .[$i].path, |, 'while read line; do test=$(echo $line | rev | cut -d'/' -f1 | rev | sed 's/\\\"//g'); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $line http://controller.cluster:8080/AUTH_$(cat /id.txt)/container1/$test ; done' ]\n"
+        #overall += "  - [ curl, -v, --cookie, 'session={0}', -X, POST, 'http://196.21.250.40:5432/_done', -d, '@/meta_data.json', --header, 'Content-Type: application/json' ]\n".format(cookie)
 
+        #print(overall)
         self.create_job(fileName, uid, overall)
 
 

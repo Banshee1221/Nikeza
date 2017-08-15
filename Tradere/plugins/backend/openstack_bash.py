@@ -78,7 +78,8 @@ class Plugin:
     def stop_job(self, serverId):
         stop_req = 'curl -H "X-Auth-Token:{0}" -X DELETE -H "Content-type: application/json" http://{1}:{2}/v2.1/servers/{3}'.format(
             self.token, fqdn, nova_port, serverId)
-        process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)  # Non-cred functions
+        process = subprocess.run(stop_req, shell=True, stdout=subprocess.PIPE)
+        print(process.stdout)# Non-cred functions
 
     def get_instance_ip(self, instanceId):
         stop_req = 'curl -H "X-Auth-Token:{0}" -X GET -H "Content-type: application/json" http://{1}:{2}/v2.1/servers/{3}'.format(

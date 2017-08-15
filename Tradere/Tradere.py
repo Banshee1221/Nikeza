@@ -52,7 +52,8 @@ def index():
 @app.route('/getsession')
 def getsession():
     if 'user' in session:
-        response = "User: {0} | Password: {1} | Session: {2}".format(session['user'], session['password'], session['id'])
+        response = "User: {0} | Password: {1} | Session: {2} | Cookie: {3}" \
+                   "".format(session['user'], session['password'], session['id'], request.cookies['session'])
         return response
     return "Not logged in"
 
@@ -128,16 +129,33 @@ def upload():
                 session['other'] = request.get_json()
             if len(request.files) > 0:
                 request.files['file'].save("runtime/{0}".format(session['other']['cwlFileName']))
-                #print("[+] _upload: " + str(session['file'].decode('utf-8')))
-                #print("[+] _upload: " + str(session['other']))
                 operation = operations.Ops(g.user, g.password)
-                operation.create_script(session['id'], session['other']['cwlFileName'], session['other'])
+                operation.create_script(session['id'], session['other']['cwlFileName'], session['other'], request.cookies['session'], g.user, g.password)
         except Exception as e:
             print("[+] _upload: well oops :/", e)
             return ""
         return "success"
     return redirect(url_for("index", error=True))
 
+@app.route('/_done', methods=['POST'])
+def jobDone():
+    if g.user:
+        try:
+            operation = operations.Ops(g.user, g.password)
+            if request.method == 'POST':
+                response = request.get_json()
+                print("[+] _data: "+str(response['uuid']))
+                response_proc = ""
+                try:
+                    response_proc = str(response['uuid'].decode()).strip()
+                except:
+                    response_proc = str(response['uuid']).strip()
+                operation.stop_run([response_proc])
+        except Exception as e:
+            print("[+] _data: well oops :/", e)
+            return ""
+        return "success"
+    return redirect(url_for("index", error=True))
 
 
 @app.route('/logout')
