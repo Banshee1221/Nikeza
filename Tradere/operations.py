@@ -91,12 +91,11 @@ class Ops:
                                                                             self.stor.getURL(item['container'],
                                                                                              item['fileName']))
             overall += "  - {0}".format(download_command)
+        overall += "  - cd {0} && cwl-runner --outdir {1} {2} > {1}/cwl_run.txt\n".format(args['in_mnt'], args['out_mnt'], args['args'])
         overall += "  - cd {0}\n".format(args['out_mnt'])
-        overall += "  - {0}\n".format(args['args'])
-        overall += "  - cd {0} && cwl-runner {1} > cwl_run.txt\n".format(args['in_mnt'], args['args'])
         overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.tenant.id | sed -e ''s/^\"//'' -e ''s/\"$//'' > /id.txt'\n".format(user, passwd)
         overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.id | sed -e ''s/^\"//'' -e ''s/\"$//'' > /token.txt'\n".format(user, passwd)
-        overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test http://controller.cluster:8080/v1/AUTH_$(cat /id.txt)/container1/$test ; done'\n"
+        overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test http://controller.cluster:8080/v1/AUTH_$(cat /id.txt)/{0}/$test ; done'\n".format(args["out_dat"])
         overall += "  - [ curl, -v, --cookie, 'session={0}', -X, POST, 'http://196.21.250.40:5432/_done', -d, '@/meta_data.json', --header, 'Content-Type: application/json' ]\n".format(cookie)
 
         #print(overall)
