@@ -1,15 +1,14 @@
+import logging, sys
 import importlib
-import gzip
-from time import sleep
 import base64
-from parser import get_settings
+from parser import settings_dict
 from shutil import copyfile
 
-from plugins.system import *
 
+settings_dict = settings_dict
 plugin = importlib.import_module(
-    "plugins.backend." + str(get_settings()['backend']['platform_file']).replace(".py", ""))
-storage = importlib.import_module("plugins.storage." + str(get_settings()['system']['storage_backend']).replace(".py",
+    "plugins.backend." + str(settings_dict['backend']['platform_file']).replace(".py", ""))
+storage = importlib.import_module("plugins.storage." + str(settings_dict['system']['storage_backend']).replace(".py",
                                                                                                                 ""))
 
 
@@ -20,6 +19,11 @@ class Ops:
     passwd = None
 
     def __init__(self, user, passwd):
+        """
+        Sets username and password of user for authenticating to the backend platform
+        :param user: Username of user
+        :param passwd: Password of user
+        """
         self.user = user
         self.passwd = passwd
         self.plug = plugin.Plugin(user, passwd)
@@ -28,35 +32,61 @@ class Ops:
     def get_queue(self):
         """
         Receives the list of running objects as dict
-        :return:
+        :return: List of running intances as dictionary
         """
         return self.plug.queue_list()
 
     def stop_run(self, listOfIds):
+        """
+        Instruct backend to stop running instances
+        :param listOfIds: Array of the instances to stop
+        :return: None
+        """
         for item in listOfIds:
             if item is not None:
                 self.plug.stop_job(item)
 
     def get_storage(self):
+        """
+        Gets list outer list of objects available in storage
+        :return: Dict object of objects available in storage backend
+        """
         return self.stor.overview()
 
     def get_storage_inner(self, containerName):
+        """
+        Traverse inner storage elements based on outer objects. Used for lazy-lookup
+        :param containerName: Outer storage element
+        :return: Dict object representing elements inside outer storage element
+        """
         return self.stor.traverse(containerName)
 
     def create_job(self, name, eyedee, stuffToAdd):
+        """
+        Set up cloud-init script and send information to backend to start instance
+        :param name: String of the CWL file name to name the instance
+        :param eyedee: UUID generated for user session
+        :param stuffToAdd: Cloud-init YAML to be added to the base file
+        :return: None
+        """
         ci_cript = open('operations/cloud-init.yml')
         data = ci_cript.read() + "{0}".format(stuffToAdd)
-        print(data)
         sendData = base64.b64encode(data.encode('utf-8')).decode('utf-8')
         ci_cript.close()
         job_id = self.plug.start_job("{0}_{1}".format(name, eyedee), sendData)
-        #print(job_id)
-        #sleep(5)
-        #print(self.plug.get_instance_ip(job_id))
 
     def create_script(self, uid, fileName, args, cookie, user, passwd):
-
-        copyfile("operations/" + str(get_settings()['operations']['ops_postscript']), "runtime/"+str(uid)+".sh")
+        """
+        Bootstraps the cloud-init configuration before the instance is started
+        :param uid: UUID generated for user session
+        :param fileName: String of the CWL file name to name the instance
+        :param args: JSON of user input passed from the front-end
+        :param cookie: Cookie for the user session for the instance to send shutdown request
+        :param user: Username of the user for the backend platform
+        :param passwd: Password of the user for the backend platform
+        :return: None
+        """
+        copyfile("operations/" + str(settings_dict['operations']['ops_postscript']), "runtime/"+str(uid)+".sh")
         overall = "bootcmd:\n" \
                   "  - mkdir -p {0}\n" \
                   "  - mkdir -p {1}\n" \
@@ -95,7 +125,7 @@ class Ops:
         overall += "  - cd {0}\n".format(args['out_mnt'])
         overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.tenant.id | sed -e ''s/^\"//'' -e ''s/\"$//'' > /id.txt'\n".format(user, passwd)
         overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.id | sed -e ''s/^\"//'' -e ''s/\"$//'' > /token.txt'\n".format(user, passwd)
-        overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test http://controller.cluster:8080/v1/AUTH_$(cat /id.txt)/{0}/$test ; done'\n".format(args["out_dat"])
+        overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test http://{1}:{2}/v1/AUTH_$(cat /id.txt)/{0}/$test ; done'\n".format(args["out_dat"], settings_dict['system']['storage_url'], settings_dict['system']['storage_port'])
         overall += "  - [ curl, -v, --cookie, 'session={0}', -X, POST, 'http://196.21.250.40:5432/_done', -d, '@/meta_data.json', --header, 'Content-Type: application/json' ]\n".format(cookie)
 
         #print(overall)

@@ -1,3 +1,5 @@
+import logging
+
 settings_dict = {
     "general": {},
     "backend": {},
