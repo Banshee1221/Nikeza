@@ -1,11 +1,13 @@
-import logging, sys
+import logging
 import importlib
 import base64
 from parser import settings_dict
 from shutil import copyfile
 
 
+logging.info("I:Getting settings from vars.conf")
 settings_dict = settings_dict
+logging.info("I:Importing selected backend plugin")
 plugin = importlib.import_module(
     "plugins.backend." + str(settings_dict['backend']['platform_file']).replace(".py", ""))
 storage = importlib.import_module("plugins.storage." + str(settings_dict['system']['storage_backend']).replace(".py",
@@ -34,6 +36,7 @@ class Ops:
         Receives the list of running objects as dict
         :return: List of running intances as dictionary
         """
+        logging.info("I:Getting queue list from backend")
         return self.plug.queue_list()
 
     def stop_run(self, listOfIds):
@@ -44,6 +47,7 @@ class Ops:
         """
         for item in listOfIds:
             if item is not None:
+                logging.info("I:Stopping instance " + str(item))
                 self.plug.stop_job(item)
 
     def get_storage(self):
@@ -51,6 +55,7 @@ class Ops:
         Gets list outer list of objects available in storage
         :return: Dict object of objects available in storage backend
         """
+        logging.info("I:Getting storage overiew")
         return self.stor.overview()
 
     def get_storage_inner(self, containerName):
@@ -59,6 +64,7 @@ class Ops:
         :param containerName: Outer storage element
         :return: Dict object representing elements inside outer storage element
         """
+        logging.info("I:Getting elements inside storage container " + str(containerName))
         return self.stor.traverse(containerName)
 
     def create_job(self, name, eyedee, stuffToAdd):
@@ -69,10 +75,13 @@ class Ops:
         :param stuffToAdd: Cloud-init YAML to be added to the base file
         :return: None
         """
+        logging.info("I:Reading data from base cloud-init.yml")
         ci_cript = open('operations/cloud-init.yml')
+        logging.info("I:Adding info to base file")
         data = ci_cript.read() + "{0}".format(stuffToAdd)
         sendData = base64.b64encode(data.encode('utf-8')).decode('utf-8')
         ci_cript.close()
+        logging.info("I:Starting job " + str(name)+"_"+ str(eyedee))
         job_id = self.plug.start_job("{0}_{1}".format(name, eyedee), sendData)
 
     def create_script(self, uid, fileName, args, cookie, user, passwd):
@@ -86,7 +95,9 @@ class Ops:
         :param passwd: Password of the user for the backend platform
         :return: None
         """
+        logging.info("I:Copying post-instance file")
         copyfile("operations/" + str(settings_dict['operations']['ops_postscript']), "runtime/"+str(uid)+".sh")
+        logging.info("I:Generating overall YAML")
         overall = "bootcmd:\n" \
                   "  - mkdir -p {0}\n" \
                   "  - mkdir -p {1}\n" \
@@ -123,12 +134,12 @@ class Ops:
             overall += "  - {0}".format(download_command)
         overall += "  - cd {0} && cwl-runner --outdir {1} {2} > {1}/cwl_run.txt\n".format(args['in_mnt'], args['out_mnt'], args['args'])
         overall += "  - cd {0}\n".format(args['out_mnt'])
-        overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.tenant.id | sed -e ''s/^\"//'' -e ''s/\"$//'' > /id.txt'\n".format(user, passwd)
-        overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.id | sed -e ''s/^\"//'' -e ''s/\"$//'' > /token.txt'\n".format(user, passwd)
-        overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test http://{1}:{2}/v1/AUTH_$(cat /id.txt)/{0}/$test ; done'\n".format(args["out_dat"], settings_dict['system']['storage_url'], settings_dict['system']['storage_port'])
+        overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.tenant.id | sed -e ''s/^\\\"//'' -e ''s/\\\"$//'' > /id.txt'\n".format(user, passwd)
+        overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.id | sed -e ''s/^\\\"//'' -e ''s/\\\"$//'' > /token.txt'\n".format(user, passwd)
+        overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test {1}:{2}/v1/AUTH_$(cat /id.txt)/{0}/$test ; done'\n".format(args["out_dat"], settings_dict['system']['storage_url'], settings_dict['system']['storage_port'])
         overall += "  - [ curl, -v, --cookie, 'session={0}', -X, POST, 'http://196.21.250.40:5432/_done', -d, '@/meta_data.json', --header, 'Content-Type: application/json' ]\n".format(cookie)
-
-        #print(overall)
+        logging.info("I:Overall YAML ->\n"+str(overall))
+        logging.info("I:Running create_job()")
         self.create_job(fileName, uid, overall)
 
 
