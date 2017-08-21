@@ -4,7 +4,8 @@ import base64
 from parser import settings_dict
 from shutil import copyfile
 
-
+logging.getLogger('tradere.operations')
+logging.basicConfig(level=logging.DEBUG)
 logging.info("I:Getting settings from vars.conf")
 settings_dict = settings_dict
 logging.info("I:Importing selected backend plugin")
@@ -105,7 +106,6 @@ class Ops:
 
         userScript = open('runtime/{0}'.format(fileName))
         userScriptData = userScript.read()
-        print(userScriptData)
         userScript.close()
         b64userScriptData = base64.b64encode(userScriptData.encode('utf-8')).decode('utf-8')
         overall += "write_files:\n" \

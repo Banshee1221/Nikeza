@@ -1,10 +1,10 @@
+import logging
 from parser import get_settings
 import uuid
 import operations
 from flask import Flask, request, render_template, session, g, redirect, url_for, jsonify
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['CACHE_TYPE'] = 'simple'
@@ -31,31 +31,31 @@ def index():
     :return: render_template('index.html') if user not logged in
     :return: redirect(url_for('queue')) if user logged in
     """
-    logging.info("\n=== index()/ ===")
+    app.logger.info("\n=== index()/ ===")
     if request.args.get('error') and 'user' in session:
-        logging.error("E:Error on login")
+        app.logger.error("E:Error on login")
         g.error = True
         session.pop('user', None)
     if g.user and not g.error:
-        logging.info("I:User logged in, redirecting to queue")
+        app.logger.info("I:User logged in, redirecting to queue")
         return redirect(url_for('queue'))
     if request.method == 'POST':
         session.pop('user', None)
         if request.form['username'] != '' or request.form['password'] != '':
-            logging.info("I:Setting user information for session")
+            app.logger.info("I:Setting user information for session")
             session['user'] = request.form['username']
             session['password'] = request.form['password']
             session['id'] = uuid.uuid4()
             session['requestCont'] = ""
             session['file'] = None
             session['other'] = ""
-            logging.info("I:Redirecting user to queue")
+            app.logger.info("I:Redirecting user to queue")
             return redirect(url_for('queue'))
         else:
-            logging.error("E:Error logging user in")
+            app.logger.error("E:Error logging user in")
             g.error = True
             session.pop('user', None)
-    logging.info("I:Rendering main index template")
+    app.logger.info("I:Rendering main index template")
     return render_template('index.html',
                            title=get_settings()["general"]["sysname"],
                            plugin_image="static/images/{0}".format(get_settings()["backend"]["platform_image"]),
@@ -78,138 +78,138 @@ def getsession():
 
 @app.route('/queue', methods=['GET', 'POST'])
 def queue():
-    logging.info("\n=== queue()/queue ===")
+    app.logger.info("\n=== queue()/queue ===")
     if g.user:
-        logging.info("I:Attempt login check...")
+        app.logger.info("I:Attempt login check...")
         try:
             operation = operations.Ops(g.user, g.password)
             if request.method == 'POST':
-                logging.info("I:POST received -> stop_run()")
-                logging.info("I:Received json from ajax - " + str(request.get_json()))
+                app.logger.info("I:POST received -> stop_run()")
+                app.logger.info("I:Received json from ajax - " + str(request.get_json()))
                 operation.stop_run(request.get_json())
         except Exception as e:
-            logging.error("E:Issue stopping server -> " + str(e))
+            app.logger.error("E:Issue stopping server -> " + str(e))
             return redirect(url_for("index", error=True))
-        logging.info("I:Sending user to queue")
+        app.logger.info("I:Sending user to queue")
         return render_template("queue.html",
                                title=get_settings()["general"]["sysname"],
                                queue_dict=operation.get_queue())
-    logging.error("E:User not signed in! Redirect")
+    app.logger.error("E:User not signed in! Redirect")
     return redirect(url_for("index", error=True))
 
 
 @app.route('/_updateQueue', methods=['GET'])
 def updateQueue():
-    logging.info("=== updateQueue()/_updateQueue ===")
+    app.logger.info("=== updateQueue()/_updateQueue ===")
     if g.user:
-        logging.info("I:Attempting login check...")
+        app.logger.info("I:Attempting login check...")
         try:
             operation = operations.Ops(g.user, g.password)
         except Exception as e:
-            logging.error("E:Could not log user in to backend -> " + str(e))
+            app.logger.error("E:Could not log user in to backend -> " + str(e))
             return redirect(url_for("index", error=True))
-        logging.info("I:Getting queue from backend")
+        app.logger.info("I:Getting queue from backend")
         return jsonify(j=operation.get_queue())
     return redirect(url_for("index", error=True))
 
 
 @app.route('/new', methods=['GET', 'POST'])
 def new():
-    logging.info("=== new()/new ===")
+    app.logger.info("=== new()/new ===")
     if g.user:
-        logging.info("I:Attempting login check...")
+        app.logger.info("I:Attempting login check...")
         try:
             operation = operations.Ops(g.user, g.password)
             if request.method == 'POST':
-                logging.info("I:POST received")
-                logging.info("I:Get new page request -> "+str(request.get_json()).strip())
+                app.logger.info("I:POST received")
+                app.logger.info("I:Get new page request -> "+str(request.get_json()).strip())
                 session['requestCont'] = str(request.get_json()).strip()
                 session.modified = True
         except Exception as e:
-            logging.error("E:Could not log user in to backend -> " + str(e))
+            app.logger.error("E:Could not log user in to backend -> " + str(e))
             return redirect(url_for("index", error=True))
-        logging.info("I:Get storage data from get_storage()")
+        app.logger.info("I:Get storage data from get_storage()")
         storageData = operation.get_storage()
-        logging.info("I: Storage data -> "+str(storageData))
+        app.logger.info("I: Storage data -> "+str(storageData))
         return render_template("new.html",
                                title=get_settings()["general"]["sysname"],
                                initData=storageData,
                                initData2=storageData)
-    logging.error("E:User not logged in! Redirecting")
+    app.logger.error("E:User not logged in! Redirecting")
     return redirect(url_for("index"))
 
 
 @app.route('/_new', methods=['POST', 'GET'])
 def updateTree():
-    logging.info("=== updateTree()/_new ===")
+    app.logger.info("=== updateTree()/_new ===")
     if g.user:
-        logging.info("I:Attempting login check...")
+        app.logger.info("I:Attempting login check...")
         try:
             operation = operations.Ops(g.user, g.password)
-            logging.info("I:POST received -> "+str(request.args))
+            app.logger.info("I:POST received -> "+str(request.args))
             if 'id' in request.args:
                 if request.args.get('id') != "root":
                     return jsonify(operation.get_storage_inner(request.args.get('id')))
         except Exception as e:
-            logging.error("E: Could not receive storage information -> " + str(e))
+            app.logger.error("E: Could not receive storage information -> " + str(e))
             return ""
-        logging.info("I:RequestConf variable -> "+str(session['requestCont']))
+        app.logger.info("I:RequestConf variable -> "+str(session['requestCont']))
         return jsonify(operation.get_storage())
-    logging.error("E:User not logged in! Redirecting")
+    app.logger.error("E:User not logged in! Redirecting")
     return redirect(url_for("index", error=True))
 
 @app.route('/_upload', methods=['POST'])
 def upload():
-    logging.info("=== upload()/_upload ===")
+    app.logger.info("=== upload()/_upload ===")
     if g.user:
-        logging.info("I:Attempting login check...")
+        app.logger.info("I:Attempting login check...")
         try:
             if request.get_json() is not None:
                 session['other'] = request.get_json()
-                logging.info("I:POST received, 'other' -> " + str(session['other']))
+                app.logger.info("I:POST received, 'other' -> " + str(session['other']))
             if len(request.files) > 0:
-                logging.info("I:POST received, file upload")
+                app.logger.info("I:POST received, file upload")
                 request.files['file'].save("runtime/{0}".format(session['other']['cwlFileName']))
                 operation = operations.Ops(g.user, g.password)
-                logging.info("I:Creating script for starting instance")
+                app.logger.info("I:Creating script for starting instance")
                 operation.create_script(session['id'], session['other']['cwlFileName'], session['other'], request.cookies['session'], g.user, g.password)
         except Exception as e:
-            logging.error("E:Could not start new instance in backend -> " + str(e))
+            app.logger.error("E:Could not start new instance in backend -> " + str(e))
             return ""
         return "success"
-    logging.error("E:User not logged in! Redirecting")
+    app.logger.error("E:User not logged in! Redirecting")
     return redirect(url_for("index", error=True))
 
 @app.route('/_done', methods=['POST'])
 def jobDone():
-    logging.info("=== jobDone()/_done ===")
-    logging.info("+++ Virtual machine requesting shutdown")
+    app.logger.info("=== jobDone()/_done ===")
+    app.logger.info("+++ Virtual machine requesting shutdown")
     if g.user:
-        logging.info("I:Attemtping login check...")
+        app.logger.info("I:Attemtping login check...")
         try:
             operation = operations.Ops(g.user, g.password)
             if request.method == 'POST':
                 response = request.get_json()
-                logging.info("I:POST received, uuid of instance -> " + str(response['uuid']))
+                app.logger.info("I:POST received, uuid of instance -> " + str(response['uuid']))
                 response_proc = ""
                 try:
                     response_proc = str(response['uuid'].decode()).strip()
                 except:
                     response_proc = str(response['uuid']).strip()
-                logging.info("I:Attempting to stop instance")
+                app.logger.info("I:Attempting to stop instance")
                 operation.stop_run([response_proc])
         except Exception as e:
-            logging.error("E:Could not stop instance -> " + str(e))
+            app.logger.error("E:Could not stop instance -> " + str(e))
             return ""
         return "success"
-    logging.error("E:User not logged in! Redirecting")
+    app.logger.error("E:User not logged in! Redirecting")
     return redirect(url_for("index", error=True))
 
 
 @app.route('/logout')
 def logout():
-    logging.info("=== logout/logout ===")
-    logging.info("I:Removing user session")
+    app.logger.info("=== logout/logout ===")
+    app.logger.info("I:Removing user session")
     session.pop('user', None)
     return redirect(url_for('index'))
 
