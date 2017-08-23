@@ -22,6 +22,7 @@ def before_request():
     if 'user' in session and 'password' in session:
         g.user = session['user']
         g.password = session['password']
+        g.tenant = session['tenant']
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -41,10 +42,11 @@ def index():
         return redirect(url_for('queue'))
     if request.method == 'POST':
         session.pop('user', None)
-        if request.form['username'] != '' or request.form['password'] != '':
+        if request.form['username'] != '' or request.form['password'] != '' or request.form['tenant'] != '':
             app.logger.info("I:Setting user information for session")
             session['user'] = request.form['username']
             session['password'] = request.form['password']
+            session['tenant'] = request.form['tenant']
             session['id'] = uuid.uuid4()
             session['requestCont'] = ""
             session['file'] = None
@@ -82,7 +84,7 @@ def queue():
     if g.user:
         app.logger.info("I:Attempt login check...")
         try:
-            operation = operations.Ops(g.user, g.password)
+            operation = operations.Ops(g.user, g.password, g.tenant)
             if request.method == 'POST':
                 app.logger.info("I:POST received -> stop_run()")
                 app.logger.info("I:Received json from ajax - " + str(request.get_json()))
@@ -104,7 +106,7 @@ def updateQueue():
     if g.user:
         app.logger.info("I:Attempting login check...")
         try:
-            operation = operations.Ops(g.user, g.password)
+            operation = operations.Ops(g.user, g.password, g.tenant)
         except Exception as e:
             app.logger.error("E:Could not log user in to backend -> " + str(e))
             return redirect(url_for("index", error=True))
@@ -119,7 +121,7 @@ def new():
     if g.user:
         app.logger.info("I:Attempting login check...")
         try:
-            operation = operations.Ops(g.user, g.password)
+            operation = operations.Ops(g.user, g.password, g.tenant)
             if request.method == 'POST':
                 app.logger.info("I:POST received")
                 app.logger.info("I:Get new page request -> "+str(request.get_json()).strip())
@@ -145,7 +147,7 @@ def updateTree():
     if g.user:
         app.logger.info("I:Attempting login check...")
         try:
-            operation = operations.Ops(g.user, g.password)
+            operation = operations.Ops(g.user, g.password, g.tenant)
             app.logger.info("I:POST received -> "+str(request.args))
             if 'id' in request.args:
                 if request.args.get('id') != "root":
@@ -170,7 +172,7 @@ def upload():
             if len(request.files) > 0:
                 app.logger.info("I:POST received, file upload")
                 request.files['file'].save("runtime/{0}".format(session['other']['cwlFileName']))
-                operation = operations.Ops(g.user, g.password)
+                operation = operations.Ops(g.user, g.password, g.tenant)
                 app.logger.info("I:Creating script for starting instance")
                 operation.create_script(session['id'], session['other']['cwlFileName'], session['other'], request.cookies['session'], g.user, g.password)
         except Exception as e:
@@ -187,7 +189,7 @@ def jobDone():
     if g.user:
         app.logger.info("I:Attemtping login check...")
         try:
-            operation = operations.Ops(g.user, g.password)
+            operation = operations.Ops(g.user, g.password, g.tenant)
             if request.method == 'POST':
                 response = request.get_json()
                 app.logger.info("I:POST received, uuid of instance -> " + str(response['uuid']))

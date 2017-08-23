@@ -20,8 +20,9 @@ class Ops:
     stor = None
     user = None
     passwd = None
+    tenant = None
 
-    def __init__(self, user, passwd):
+    def __init__(self, user, passwd, tenant):
         """
         Sets username and password of user for authenticating to the backend platform
         :param user: Username of user
@@ -29,8 +30,9 @@ class Ops:
         """
         self.user = user
         self.passwd = passwd
-        self.plug = plugin.Plugin(user, passwd)
-        self.stor = storage.Storage(user, passwd)
+        self.tenant = tenant
+        self.plug = plugin.Plugin(user, passwd, tenant)
+        self.stor = storage.Storage(user, passwd, tenant)
 
     def get_queue(self):
         """
@@ -137,7 +139,7 @@ class Ops:
         overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.tenant.id | sed -e ''s/^\\\"//'' -e ''s/\\\"$//'' > /id.txt'\n".format(user, passwd)
         overall += "  - 'curl -s -s -d ''{{\"auth\": {{\"tenantName\": \"{0}\", \"passwordCredentials\": {{\"username\": \"{0}\", \"password\": \"{1}\"}}}}}}'' -H \"Content-type: application/json\" http://controller.cluster:35357/v2.0/tokens | jq .access.token.id | sed -e ''s/^\\\"//'' -e ''s/\\\"$//'' > /token.txt'\n".format(user, passwd)
         overall += "  - 'cat cwl_run.txt | jq .[$i].path | while read line; do test=$(echo $line | rev | cut -d''/'' -f1 | rev | sed ''s/\\\"//g''); curl -X PUT -i -H \"X-Auth-Token: $(cat /token.txt)\" -T $test {1}:{2}/v1/AUTH_$(cat /id.txt)/{0}/$test ; done'\n".format(args["out_dat"], settings_dict['system']['storage_url'], settings_dict['system']['storage_port'])
-        overall += "  - [ curl, -v, --cookie, 'session={0}', -X, POST, 'http://196.21.250.40:5432/_done', -d, '@/meta_data.json', --header, 'Content-Type: application/json' ]\n".format(cookie)
+        #overall += "  - [ curl, -v, --cookie, 'session={0}', -X, POST, 'http://196.21.250.40:5432/_done', -d, '@/meta_data.json', --header, 'Content-Type: application/json' ]\n".format(cookie)
         logging.info("I:Overall YAML ->\n"+str(overall))
         logging.info("I:Running create_job()")
         self.create_job(fileName, uid, overall)

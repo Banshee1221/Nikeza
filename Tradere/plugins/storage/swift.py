@@ -14,10 +14,10 @@ class Storage:
     result_json = None
     id = None
 
-    def __init__(self, user, passwd):
+    def __init__(self, user, passwd, tenant):
         #print("openstack_plugin______")
         token_req = 'curl -s -s -d \'{"auth": {"tenantName": "' + str(
-            user) + '", "passwordCredentials": {"username": "' + str(user) + '", "password": "' + str(
+            tanant) + '", "passwordCredentials": {"username": "' + str(user) + '", "password": "' + str(
             passwd) + '"}}}\' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens'
 
         process = subprocess.run(token_req, shell=True, stdout=subprocess.PIPE)
