@@ -19,7 +19,7 @@ def before_request():
     g.error = False
     g.user = None
     g.password = None
-    if 'user' in session and 'password' in session:
+    if 'user' in session and 'password' in session and 'tenant' in session:
         g.user = session['user']
         g.password = session['password']
         g.tenant = session['tenant']
@@ -52,6 +52,7 @@ def index():
             session['file'] = None
             session['other'] = ""
             app.logger.info("I:Redirecting user to queue")
+            print(session['user'], session['password'], session['tenant'])
             return redirect(url_for('queue'))
         else:
             app.logger.error("E:Error logging user in")
