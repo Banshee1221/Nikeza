@@ -4,7 +4,7 @@ import base64
 from parser import settings_dict
 from shutil import copyfile
 
-logging.getLogger('tradere.operations')
+logging.getLogger('Nikeza.operations')
 logging.basicConfig(level=logging.DEBUG)
 logging.info("I:Getting settings from vars.conf")
 settings_dict = settings_dict
